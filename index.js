@@ -58,7 +58,12 @@ async function run() {
             res.send(result);
         })
 
-
+        // wish list related api
+        app.post('/wishlist', async (req, res) => {
+            const wishListItem = req.body;
+            const result = await wishListCollection.insertOne(wishListItem);
+            res.send(result);
+        })
 
 
 
@@ -77,12 +82,7 @@ async function run() {
 
 
 
-        // wish list related api
-        app.post('/wishlist', async (req, res) => {
-            const wishListItem = req.body;
-            const result = await wishListCollection.insertOne(wishListItem);
-            res.send(result);
-        })
+
 
 
 

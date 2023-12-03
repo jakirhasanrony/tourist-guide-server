@@ -81,6 +81,17 @@ async function run() {
             }
             next();
         }
+        // verify tourGuide
+        const verifyTourGuide = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            const isTourGuide = user?.role === 'tourGuide';
+            if (!isTourGuide) {
+                return req.status(403).send({ message: 'forbidden access' });
+            }
+            next();
+        }
 
 
 
@@ -131,7 +142,6 @@ async function run() {
             if (email !== req.decoded.email) {
                 return req.status(403).send({ message: 'forbidden access' });
             }
-
             const query = { email: email };
             const user = await userCollection.findOne(query);
             let admin = false;
@@ -139,14 +149,9 @@ async function run() {
                 admin = user?.role === 'admin'
             }
             res.send({ admin });
-
         })
-
-
-
-
         // tour guide api
-        app.patch('/users/tourGuide/:id', verifyToken, verifyAdmin, async (req, res) => {
+        app.patch('/users/tourGuide/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) };
             const updatedDoc = {
@@ -156,6 +161,22 @@ async function run() {
             }
             const result = await userCollection.updateOne(filter, updatedDoc);
             res.send(result);
+
+        })
+
+           // check if user tourGuide or not!
+           app.get('/users/tourGuide/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            if (email !== req.decoded.email) {
+                return req.status(403).send({ message: 'forbidden access' });
+            }
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            let tourGuide = false;
+            if (user) {
+                tourGuide = user?.role === 'tourGuide'
+            }
+            res.send({ tourGuide });
 
         })
 

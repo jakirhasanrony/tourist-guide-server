@@ -39,6 +39,8 @@ async function run() {
         const tourPackagesCollection = client.db("finalEffortDb").collection("tourPackages");
         const wishListCollection = client.db("finalEffortDb").collection("wishList");
         const userCollection = client.db("finalEffortDb").collection("users");
+        const commentCollection = client.db("finalEffortDb").collection("comments");
+        const storyCollection = client.db("finalEffortDb").collection("stories");
 
 
 
@@ -164,8 +166,8 @@ async function run() {
 
         })
 
-           // check if user tourGuide or not!
-           app.get('/users/tourGuide/:email', verifyToken, async (req, res) => {
+        // check if user tourGuide or not!
+        app.get('/users/tourGuide/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             if (email !== req.decoded.email) {
                 return req.status(403).send({ message: 'forbidden access' });
@@ -192,6 +194,11 @@ async function run() {
             const result = await tourPackagesCollection.find().toArray();
             res.send(result);
         })
+        app.post('/tourPackage', verifyToken, verifyAdmin, async (req, res) => {
+            const item = req.body;
+            const result = await tourPackagesCollection.insertOne(item);
+            res.send(result);
+        })
 
         app.get('/tourPackage/:id', async (req, res) => {
             const id = req.params.id;
@@ -200,6 +207,28 @@ async function run() {
             res.send(result);
         })
 
+        // tourist comment for tourGuide
+        app.post('/comments', async (req, res) => {
+            const comment = req.body;
+            const result = await commentCollection.insertOne(comment);
+            res.send(result);
+        })
+        // tourist stories
+        app.post('/stories', async (req, res) => {
+            const story = req.body;
+            const result = await storyCollection.insertOne(story);
+            res.send(result);
+        })
+        app.get('/stories', async (req, res) => {
+            const result = await storyCollection.find().toArray();
+            res.send(result);
+        })
+        app.get('/stories/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await storyCollection.findOne(query);
+            res.send(result);
+        })
 
 
 
